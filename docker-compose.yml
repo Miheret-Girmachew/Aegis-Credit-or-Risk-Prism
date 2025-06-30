@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  # This is the name of our service
+  api:
+    # Build the image from the Dockerfile in the current directory
+    build: .
+    # Map port 8000 on our host machine to port 8000 in the container
+    ports:
+      - "8000:8000"
+    # Mount the mlruns directory from our host into the container.
+    # This is CRITICAL so the containerized API can find the model
+    # artifacts that were created by our local training script.
+    volumes:
+      - ./mlruns:/app/mlruns
+    # This ensures that the container can connect to the MLflow
+    # server running on our host machine (your computer).
+    # 'host.docker.internal' is a special DNS name for this.
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    # Set the environment variable for the MLflow tracking URI inside the container
+    environment:
+      - MLFLOW_TRACKING_URI=http://host.docker.internal:5000

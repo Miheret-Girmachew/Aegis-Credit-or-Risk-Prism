@@ -2,3 +2,8 @@ pandas
 scikit-learn
 mlflow
 pytest
+fastapi
+uvicorn[standard]
+python-dotenv
+pydantic
+flake8  

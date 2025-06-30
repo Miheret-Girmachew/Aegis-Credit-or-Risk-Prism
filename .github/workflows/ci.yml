@@ -1,0 +1,53 @@
+# Name of the workflow, which will be displayed on the "Actions" tab in GitHub
+name: CI Pipeline
+
+# --- 1. Define Triggers ---
+# This workflow will run on every push or pull request to the 'main' branch
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+# --- 2. Define Jobs ---
+# A workflow is made up of one or more jobs that can run in parallel or sequentially
+jobs:
+  # We'll define a single job called 'build-and-test'
+  build-and-test:
+    # The type of virtual machine to run the job on. 'ubuntu-latest' is a good default.
+    runs-on: ubuntu-latest
+
+    # --- 3. Define Steps ---
+    # A job is a sequence of steps that will be executed in order.
+    steps:
+      # Step 1: Check out your repository's code
+      # This downloads your code into the virtual machine so the job can access it.
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Step 2: Set up the Python environment
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.9'
+
+      # Step 3: Install all the project dependencies
+      # This runs pip install using your requirements.txt file, just like on your local machine.
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      # Step 4: Run the linter (flake8) to check for code style issues
+      # The '--count' flag will make the build fail if any errors are found.
+      - name: Lint with flake8
+        run: |
+          flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+          flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+
+      # Step 5: Run the unit tests (pytest)
+      # If any test fails, pytest will exit with a non-zero code, which will
+      # automatically fail this step and the entire workflow.
+      - name: Test with pytest
+        run: |
+          pytest
